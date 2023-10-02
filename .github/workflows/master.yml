@@ -51,7 +51,7 @@ jobs:
       - name: Build library
         run: ng build collection-manager
 
-      - name: Publish package
+      - name: Publish Package
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         run: |
