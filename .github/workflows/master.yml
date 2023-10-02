@@ -25,7 +25,9 @@ jobs:
         run: npm install @angular/cli -g
 
       - name: Build library
-        run: ng build collection-manager
+        run: |
+          cd projects/collection-manager
+          ng build
 
       - name: Run tests
         run: npm run test:ci
