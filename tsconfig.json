@@ -5,9 +5,7 @@
     "baseUrl": "./",
     "paths": {
       "@dmwl/collection-manager": [
-        "dist/collection-manager"
-      ],
-      "@dmwl/collection-manager/*": [
+        "dist/collection-manager",
         "projects/some-lib/*",
         "projects/some-lib"
       ]
