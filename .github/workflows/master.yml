@@ -2,9 +2,9 @@ name: Api Table Utilities
 
 on:
   push:
-    branches: [ master123 ]
+    branches: [ master ]
   pull_request:
-    branches: [ master123 ]
+    branches: [ master ]
 
 jobs:
   test:
