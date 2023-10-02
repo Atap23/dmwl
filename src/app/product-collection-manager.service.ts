@@ -1,5 +1,5 @@
 import { delay, Observable, of } from 'rxjs';
-import { CollectionManager } from 'collection-manager';
+import { CollectionManager } from '@dmwl/collection-manager';
 import { Injectable } from '@angular/core';
 
 export type Product = {

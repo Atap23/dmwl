@@ -4,8 +4,12 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "collection-manager": [
+      "@dmwl/collection-manager": [
         "dist/collection-manager"
+      ],
+      "@dmwl/collection-manager/*": [
+        "projects/some-lib/*",
+        "projects/some-lib"
       ]
     },
     "outDir": "./dist/out-tsc",
