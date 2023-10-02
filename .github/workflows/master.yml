@@ -26,7 +26,6 @@ jobs:
 
       - name: Build library
         run: |
-          cd
           ng build
 
       - name: Run tests
