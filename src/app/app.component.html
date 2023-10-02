@@ -1,0 +1,10 @@
+<ng-container *ngIf="productCollectionManager.viewModel$ | async as vm">
+  <ng-container *ngIf="!vm.isLoading">
+    <div *ngFor="let product of vm.data">
+      <span>{{product.label}} -- {{product.price}}</span>
+    </div>
+  </ng-container>
+  <div *ngIf="vm.isLoading">
+    <span>Loading...</span>
+  </div>
+</ng-container>
