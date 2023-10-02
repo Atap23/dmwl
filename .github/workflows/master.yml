@@ -41,6 +41,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
+          registry-url: "https://registry.npmjs.org"
           scope: "@dmwl"
 
       - name: Install dependencies
@@ -57,5 +58,4 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         run: |
           cd dist/collection-manager
-          echo "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}" > .npmrc
           npm publish --access public
