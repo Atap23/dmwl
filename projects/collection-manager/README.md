@@ -1,24 +1,61 @@
 # CollectionManager
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.0.
+El objetivo de esta librería es ahorrar trabajo a la hora de gestionar una tabla de datos.
 
-## Code scaffolding
+## Como funciona
 
-Run `ng generate component component-name --project collection-manager` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project collection-manager`.
-> Note: Don't forget to add `--project collection-manager` or else it will be added to the default project in your `angular.json` file. 
+La clase **abstracta** `CollectionManager` es la que contiene la gran mayoría de lógica necesaria para
+gestionar una tabla a través del backend.
 
-## Build
+La idea es extender dicha clase, implementando los métodos `getApiRequest` y `setApiRequest`. También hay que implementar la interfaz
+de Angular `onDestroy`, para invocar `super.destroy()` en el método `ngOnDestroy`. Esto es necesario para poder parar las suscripciones
+que se hacen dentro de la clase `CollectionManager`.
 
-Run `ng build collection-manager` to build the project. The build artifacts will be stored in the `dist/` directory.
+- El método `getApiRequest` es el que invoca la clase `CollectionManager` cuando necesita hacer la llamada al backend. Este método 
+debe devolver un observable. Normalmente en este método se usará `this._http.get()` para obtener dicho observable, aunque 
+también lo puedes manejar datos estáticos devolviendo `of(dataArray)` por ejemplo.
 
-## Publishing
+- El método `setApiRequest` es el que invoca la clase `CollectionManager` para actuar una vez el backend a respondido correctamente.
+Aquí normalmente actualizarás como mínimo el array de datos con `this.data = dataArray`, y probablemente el total de elementos con
+`this.totalElements = dataArray.length` por ejemplo.
 
-After building your library with `ng build collection-manager`, go to the dist folder `cd dist/collection-manager` and run `npm publish`.
+Hay que destacar que la propiedad `isLoadingData` se pone a `true` justo antes de la llamada al método `getApiRequest` y se pone a `false`
+justo después de la llamada al método `setApiRequest`.
 
-## Running unit tests
+## Ejemplo de implementación de `CollectionManager`
 
-Run `ng test collection-manager` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```typescript
+import { Observable } from 'rxjs';
+import { CollectionManager } from '@dmwl/collection-manager';
+import { Injectable, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
-## Further help
+export type Product = {
+  id: string;
+  label: string;
+  price: number;
+}
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+export type ProductFiler = Pick<Product, 'label' | 'price'>
+
+@Injectable({ providedIn: 'root' })
+export class ProductCollectionManagerService extends CollectionManager<Product, ProductFiler> implements OnDestroy {
+
+  constructor(private _http: HttpClient) {
+    super();
+  }
+
+  protected getApiRequest(): Observable<Product[]> {
+    return this._http.get<Product[]>('/product');
+  }
+
+  protected setApiRequest(data: Product[]): void {
+    this.data = data;
+    this.totalElements = data.length;
+  }
+
+  ngOnDestroy(): void {
+    super.destroy();
+  }
+}
+```

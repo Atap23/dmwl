@@ -69,7 +69,7 @@ export abstract class CollectionManager<Data extends object, FilterPayload exten
       sort: this._sort.data$,
       page: this._pagination.page$,
       totalElements: this._totalElements$,
-      isLoading: this._isLoadingData$,
+      isLoadingData: this._isLoadingData$,
       data: this._data$
     }
 

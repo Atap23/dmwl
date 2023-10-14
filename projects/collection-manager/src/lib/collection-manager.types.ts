@@ -20,7 +20,7 @@ export type ViewModel<Data extends object, FilterPayload extends object> = {
   sort: Sort<Keys<Data>>;
   page: CollectionPage;
   totalElements: number;
-  isLoading: boolean;
+  isLoadingData: boolean;
 }
 
 export type ViewModelObservable<Data extends object, FilterPayload extends object> = {

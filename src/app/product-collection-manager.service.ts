@@ -1,6 +1,7 @@
-import { delay, Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { CollectionManager } from '@dmwl/collection-manager';
 import { Injectable, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 export type Product = {
   id: string;
@@ -13,26 +14,20 @@ export type ProductFiler = Pick<Product, 'label' | 'price'>
 @Injectable({ providedIn: 'root' })
 export class ProductCollectionManagerService extends CollectionManager<Product, ProductFiler> implements OnDestroy {
 
-  constructor() {
+  constructor(private _http: HttpClient) {
     super();
+  }
+
+  protected getApiRequest(): Observable<Product[]> {
+    return this._http.get<Product[]>('/product');
+  }
+
+  protected setApiRequest(data: Product[]): void {
+    this.data = data;
+    this.totalElements = data.length;
   }
 
   ngOnDestroy(): void {
     super.destroy();
-  }
-
-  protected getApiRequest(): Observable<Product[]> {
-    return of([
-      { id: '1', label: 'Product 1', price: 10 },
-      { id: '2', label: 'Product 2', price: 20 },
-      { id: '3', label: 'Product 3', price: 30 },
-      { id: '4', label: 'Product 4', price: 40 },
-      { id: '5', label: 'Product 5', price: 50 },
-    ]).pipe(delay(2000));
-  }
-
-  protected setApiRequest(data: Product[]): void {
-    this._data$.next(data);
-    this.totalElements = data.length;
   }
 }
