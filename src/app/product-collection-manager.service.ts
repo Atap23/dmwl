@@ -1,6 +1,6 @@
 import { delay, Observable, of } from 'rxjs';
 import { CollectionManager } from '@dmwl/collection-manager';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 
 export type Product = {
   id: string;
@@ -11,9 +11,17 @@ export type Product = {
 export type ProductFiler = Pick<Product, 'label' | 'price'>
 
 @Injectable({ providedIn: 'root' })
-export class ProductCollectionManagerService extends CollectionManager<Product, ProductFiler> {
+export class ProductCollectionManagerService extends CollectionManager<Product, ProductFiler> implements OnDestroy {
 
-  protected callToApi(): Observable<Product[]> {
+  constructor() {
+    super();
+  }
+
+  ngOnDestroy(): void {
+    super.destroy();
+  }
+
+  protected getApiRequest(): Observable<Product[]> {
     return of([
       { id: '1', label: 'Product 1', price: 10 },
       { id: '2', label: 'Product 2', price: 20 },
@@ -23,7 +31,7 @@ export class ProductCollectionManagerService extends CollectionManager<Product, 
     ]).pipe(delay(2000));
   }
 
-  protected parseApiData(data: Product[]): void {
+  protected setApiRequest(data: Product[]): void {
     this._data$.next(data);
     this.totalElements = data.length;
   }

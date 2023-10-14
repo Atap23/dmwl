@@ -1,37 +1,36 @@
 import { CollectionPagination } from './collection-pagination';
 import { CollectionFilter } from './collection-filter';
-import { BehaviorSubject, combineLatest, map, Observable, Subject, takeUntil } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, Subject, takeUntil } from 'rxjs';
 import { CollectionSort } from './collection-sort';
-import { Keys, ViewModel } from './collection-manager.types';
+import { CollectionPage, Keys, Sort, ViewModel, ViewModelObservable } from './collection-manager.types';
 
 export abstract class CollectionManager<Data extends object, FilterPayload extends object> {
-  public get data(): Data[] {
-    return this._data$.value;
-  }
 
   public set data(value: Data[]) {
     this._data$.next([...value]);
-  }
-
-  public get totalElements(): number {
-    return this._totalElements$.value;
   }
 
   public set totalElements(value: number) {
     this._totalElements$.next(value);
   }
 
-  public get isLoadingData(): boolean {
-    return this._isLoadingData$.value;
-  }
-
   public set isLoadingData(value: boolean) {
     this._isLoadingData$.next(value);
   }
 
-  public data$: Observable<Data[]> = new Observable<Data[]>();
+  public set page(page: Partial<CollectionPage> | undefined) {
+    this._pagination.setPage(page);
+  }
+
+  public set sort(sort: Partial<Sort<Keys<Data>>> | undefined) {
+    this._sort.setSort(sort);
+  }
+
+  public set filter(filter: Partial<FilterPayload> | undefined) {
+    this._filter.setFilter(filter);
+  }
+
   public viewModel$!: Observable<ViewModel<Data, FilterPayload>>;
-  public isLoadingData$: Observable<boolean> = new Observable<boolean>();
 
   protected _filter: CollectionFilter<FilterPayload> = new CollectionFilter<FilterPayload>();
   protected _pagination: CollectionPagination = new CollectionPagination();
@@ -43,19 +42,17 @@ export abstract class CollectionManager<Data extends object, FilterPayload exten
   protected _instanceDestroyed$: Subject<void> = new Subject<void>();
 
   constructor() {
-    this.data$ = this._data$.asObservable();
-    this.isLoadingData$ = this._isLoadingData$.asObservable();
     this._buildViewModel();
   }
 
-  protected abstract callToApi(): Observable<unknown>
+  protected abstract getApiRequest(): Observable<unknown>
 
-  protected abstract parseApiData(data: unknown): void
+  protected abstract setApiRequest(data: unknown): void
 
-  public getData(): void {
+  public requestDataFromApi(): void {
     this.isLoadingData = true;
-    this.callToApi().pipe(takeUntil(this._instanceDestroyed$)).subscribe((apiData: unknown) => {
-      this.parseApiData(apiData);
+    this.getApiRequest().pipe(takeUntil(this._instanceDestroyed$)).subscribe((apiData: unknown) => {
+      this.setApiRequest(apiData);
       this.isLoadingData = false;
     });
   }
@@ -67,23 +64,15 @@ export abstract class CollectionManager<Data extends object, FilterPayload exten
   }
 
   private _buildViewModel(): void {
-    this.viewModel$ = combineLatest([
-      this._filter.data$,
-      this._sort.sort$,
-      this._pagination.page$,
-      this._totalElements$,
-      this.isLoadingData$,
-      this.data$
-    ]).pipe(
-      takeUntil(this._instanceDestroyed$),
-      map(([filter, sort, page, totalElements, isLoading, data]) => ({
-        filter,
-        sort,
-        page,
-        totalElements,
-        isLoading,
-        data
-      }))
-    );
+    const observablesMap: ViewModelObservable<Data, FilterPayload> = {
+      filter: this._filter.data$,
+      sort: this._sort.data$,
+      page: this._pagination.page$,
+      totalElements: this._totalElements$,
+      isLoading: this._isLoadingData$,
+      data: this._data$
+    }
+
+    this.viewModel$ = combineLatest(observablesMap).pipe(takeUntil(this._instanceDestroyed$));
   }
 }

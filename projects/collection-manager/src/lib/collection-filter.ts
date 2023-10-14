@@ -11,14 +11,7 @@ export class CollectionFilter<F extends object> {
     this.data$ = this._data$.asObservable();
   }
 
-  public setFilter<T extends Keys<F>>(key: T, value: F[T]): void {
-    if (!!key && !!value) {
-      this._data.set(key, value);
-      this._data$.next(Object.fromEntries(this._data) as F);
-    }
-  }
-
-  public setFilterObject(object: Partial<F> | undefined): void {
+  public setFilter(object: Partial<F> | undefined): void {
     if (!!object && !!Object.keys(object).length) {
       for (const [filterKey, filterValue] of Object.entries(object)) {
         if (!!filterKey && !!filterValue) {
