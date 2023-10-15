@@ -2,6 +2,16 @@
 
 El objetivo de esta librería es ahorrar trabajo a la hora de gestionar una tabla de datos.
 
+## ¿Qué aporta la clase `CollectionManager`?
+
+Guardado del estado y setters para actualizar el estado de:
+
+- Array de datos
+- Paginación
+- Ordenación
+- Filtrado
+- Si se esta obteniendo los datos
+
 ## Como funciona
 
 La clase **abstracta** `CollectionManager` es la que contiene la gran mayoría de lógica necesaria para
